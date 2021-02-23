@@ -2,35 +2,40 @@ const express = require('express');
 const mongoose = require('mongoose');
 const PostMessage = require('../models/postMessage.js');
 
-const router = express.Router();
-
-export const getPosts = async (req, res) => {
+exports.getPosts = async (req, res) => { 
     try {
         const postMessages = await PostMessage.find();
-
-      
-
+                
         res.status(200).json(postMessages);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
 }
 
-export const createPost = async (req, res) => {
+exports.getPost = async (req, res) => { 
+    const {id} = req.params;
+    try {
+        const postMessage = await PostMessage.findById(id);       
+        res.status(200).json(postMessage);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
+exports.createPost = async (req, res) => {
     const post = req.body;
 
-    const newPost = new PostMessage(post);
+    const newPostMessage = new PostMessage(post);
 
     try {
         await newPostMessage.save();
-
         res.status(201).json(newPostMessage );
     } catch (error) {
         res.status(409).json({ message: error.message });
     }
 }
 
-export const updatePost = async (req, res) => {
+exports.updatePost = async (req, res) => {
     const { id } = req.params;
     const { title, message, creator, selectedFile, tags } = req.body;
     
@@ -43,7 +48,7 @@ export const updatePost = async (req, res) => {
     res.json(updatedPost);
 }
 
-export const likePost = async (req, res) => {
+exports.likePost = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send(`No post with id: ${id}`);
@@ -55,7 +60,7 @@ export const likePost = async (req, res) => {
     res.json(updatedPost);
 }
 
-export const deletePost = async (req, res) => {
+exports.deletePost = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send(`No post with id: ${id}`);
@@ -64,5 +69,3 @@ export const deletePost = async (req, res) => {
 
     res.json({ message: "Post deleted successfully." });
 }
-
-export default router;
